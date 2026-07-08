@@ -1,0 +1,856 @@
+openapi: 3.0.3
+info:
+  title: Task Management API
+  version: 1.0.0
+  description: >-
+    REST API for an internal task management application supporting authentication,
+    task lifecycle management, user administration, and dashboard summaries.
+servers:
+  - url: http://localhost:3000/api
+    description: Local development server
+security:
+  - bearerAuth: []
+tags:
+  - name: Authentication
+    description: User registration, sign-in, and session handling.
+  - name: Users
+    description: Administrative user management and profile operations.
+  - name: Tasks
+    description: Create, update, view, assign, complete, and delete tasks.
+  - name: Dashboard
+    description: Summary view for task progress and workload.
+paths:
+  /auth/register:
+    post:
+      tags:
+        - Authentication
+      summary: Register a new user
+      description: Creates a new employee or administrator account.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+            examples:
+              default:
+                value:
+                  firstName: Jane
+                  lastName: Doe
+                  email: jane.doe@example.com
+                  password: StrongPass123!
+                  role: employee
+      responses:
+        '201':
+          description: User registered successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+              examples:
+                default:
+                  value:
+                    user:
+                      id: usr_001
+                      firstName: Jane
+                      lastName: Doe
+                      email: jane.doe@example.com
+                      role: employee
+                      isActive: true
+                    token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+        '400':
+          description: Invalid request payload.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /auth/login:
+    post:
+      tags:
+        - Authentication
+      summary: Sign in a user
+      description: Authenticates a user and returns a bearer token.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+            examples:
+              default:
+                value:
+                  email: jane.doe@example.com
+                  password: StrongPass123!
+      responses:
+        '200':
+          description: Authentication successful.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+              examples:
+                default:
+                  value:
+                    user:
+                      id: usr_001
+                      firstName: Jane
+                      lastName: Doe
+                      email: jane.doe@example.com
+                      role: employee
+                      isActive: true
+                    token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+        '400':
+          description: Invalid email or password.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /auth/logout:
+    post:
+      tags:
+        - Authentication
+      summary: Sign out the current user
+      description: Invalidates the current session token.
+      responses:
+        '200':
+          description: Logged out successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /users:
+    get:
+      tags:
+        - Users
+      summary: List users
+      description: Returns a paginated list of users. Available to administrators.
+      parameters:
+        - $ref: '#/components/parameters/page'
+        - $ref: '#/components/parameters/pageSize'
+      responses:
+        '200':
+          description: Users retrieved successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserListResponse'
+        '400':
+          description: Invalid pagination parameters.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    post:
+      tags:
+        - Users
+      summary: Create a user
+      description: Creates a user account. Available to administrators.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateUserRequest'
+      responses:
+        '201':
+          description: User created successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          description: Invalid request payload.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /users/{userId}:
+    get:
+      tags:
+        - Users
+      summary: Get a user by ID
+      description: Returns the details of a single user.
+      parameters:
+        - $ref: '#/components/parameters/userId'
+      responses:
+        '200':
+          description: User retrieved successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '404':
+          description: User not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    patch:
+      tags:
+        - Users
+      summary: Update a user
+      description: Updates user profile details or role assignment.
+      parameters:
+        - $ref: '#/components/parameters/userId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateUserRequest'
+      responses:
+        '200':
+          description: User updated successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          description: Invalid request payload.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: User not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      tags:
+        - Users
+      summary: Delete a user
+      description: Disables or deletes a user account.
+      parameters:
+        - $ref: '#/components/parameters/userId'
+      responses:
+        '200':
+          description: User deleted successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+        '404':
+          description: User not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /tasks:
+    get:
+      tags:
+        - Tasks
+      summary: List tasks
+      description: Returns tasks relevant to the authenticated user with pagination support.
+      parameters:
+        - $ref: '#/components/parameters/page'
+        - $ref: '#/components/parameters/pageSize'
+        - name: status
+          in: query
+          description: Filter tasks by current status.
+          schema:
+            $ref: '#/components/schemas/TaskStatus'
+        - name: priority
+          in: query
+          description: Filter tasks by priority.
+          schema:
+            $ref: '#/components/schemas/TaskPriority'
+        - name: assigneeId
+          in: query
+          description: Filter tasks by assigned user ID.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Tasks retrieved successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskListResponse'
+        '400':
+          description: Invalid query parameters.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    post:
+      tags:
+        - Tasks
+      summary: Create a task
+      description: Creates a new task and assigns it if provided.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateTaskRequest'
+            examples:
+              default:
+                value:
+                  title: Prepare sprint demo
+                  description: Finalize presentation slides for the sprint review.
+                  priority: high
+                  dueDate: '2026-07-15'
+                  status: todo
+                  assigneeId: usr_002
+      responses:
+        '201':
+          description: Task created successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+        '400':
+          description: Invalid request payload.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /tasks/{taskId}:
+    get:
+      tags:
+        - Tasks
+      summary: Get a task by ID
+      description: Returns the details of a single task.
+      parameters:
+        - $ref: '#/components/parameters/taskId'
+      responses:
+        '200':
+          description: Task retrieved successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+        '404':
+          description: Task not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    patch:
+      tags:
+        - Tasks
+      summary: Update a task
+      description: Updates task details such as title, description, priority, due date, or assignment.
+      parameters:
+        - $ref: '#/components/parameters/taskId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateTaskRequest'
+      responses:
+        '200':
+          description: Task updated successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+        '400':
+          description: Invalid request payload.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Task not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      tags:
+        - Tasks
+      summary: Delete a task
+      description: Removes a task from the system.
+      parameters:
+        - $ref: '#/components/parameters/taskId'
+      responses:
+        '200':
+          description: Task deleted successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+        '404':
+          description: Task not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /tasks/{taskId}/complete:
+    patch:
+      tags:
+        - Tasks
+      summary: Mark a task as complete
+      description: Updates the status of a task to done.
+      parameters:
+        - $ref: '#/components/parameters/taskId'
+      responses:
+        '200':
+          description: Task completed successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+        '404':
+          description: Task not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /dashboard:
+    get:
+      tags:
+        - Dashboard
+      summary: Get dashboard summary
+      description: Returns summary statistics for tasks and workload visibility.
+      responses:
+        '200':
+          description: Dashboard summary retrieved successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DashboardSummary'
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  parameters:
+    page:
+      name: page
+      in: query
+      description: Page number for pagination.
+      schema:
+        type: integer
+        minimum: 1
+        default: 1
+    pageSize:
+      name: pageSize
+      in: query
+      description: Number of records per page.
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 20
+    userId:
+      name: userId
+      in: path
+      required: true
+      description: Unique identifier of the user.
+      schema:
+        type: string
+    taskId:
+      name: taskId
+      in: path
+      required: true
+      description: Unique identifier of the task.
+      schema:
+        type: string
+  schemas:
+    ErrorResponse:
+      type: object
+      required:
+        - code
+        - message
+        - timestamp
+      properties:
+        code:
+          type: string
+          example: INVALID_REQUEST
+        message:
+          type: string
+          example: The request payload is invalid.
+        timestamp:
+          type: string
+          format: date-time
+          example: '2026-07-08T12:00:00Z'
+    Pagination:
+      type: object
+      properties:
+        page:
+          type: integer
+          example: 1
+        pageSize:
+          type: integer
+          example: 20
+        totalItems:
+          type: integer
+          example: 125
+        totalPages:
+          type: integer
+          example: 7
+    User:
+      type: object
+      required:
+        - id
+        - firstName
+        - lastName
+        - email
+        - role
+        - isActive
+      properties:
+        id:
+          type: string
+          example: usr_001
+        firstName:
+          type: string
+          example: Jane
+        lastName:
+          type: string
+          example: Doe
+        email:
+          type: string
+          format: email
+          example: jane.doe@example.com
+        role:
+          $ref: '#/components/schemas/UserRole'
+        isActive:
+          type: boolean
+          example: true
+    UserRole:
+      type: string
+      enum:
+        - employee
+        - administrator
+      example: employee
+    RegisterRequest:
+      type: object
+      required:
+        - firstName
+        - lastName
+        - email
+        - password
+        - role
+      properties:
+        firstName:
+          type: string
+          example: Jane
+        lastName:
+          type: string
+          example: Doe
+        email:
+          type: string
+          format: email
+          example: jane.doe@example.com
+        password:
+          type: string
+          format: password
+          minLength: 8
+          example: StrongPass123!
+        role:
+          $ref: '#/components/schemas/UserRole'
+    LoginRequest:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+          example: jane.doe@example.com
+        password:
+          type: string
+          format: password
+          example: StrongPass123!
+    AuthResponse:
+      type: object
+      properties:
+        user:
+          $ref: '#/components/schemas/User'
+        token:
+          type: string
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+    CreateUserRequest:
+      type: object
+      required:
+        - firstName
+        - lastName
+        - email
+        - password
+        - role
+      properties:
+        firstName:
+          type: string
+          example: John
+        lastName:
+          type: string
+          example: Smith
+        email:
+          type: string
+          format: email
+          example: john.smith@example.com
+        password:
+          type: string
+          format: password
+          example: StrongPass123!
+        role:
+          $ref: '#/components/schemas/UserRole'
+    UpdateUserRequest:
+      type: object
+      properties:
+        firstName:
+          type: string
+          example: John
+        lastName:
+          type: string
+          example: Smith
+        role:
+          $ref: '#/components/schemas/UserRole'
+        isActive:
+          type: boolean
+          example: true
+    Task:
+      type: object
+      required:
+        - id
+        - title
+        - description
+        - priority
+        - dueDate
+        - status
+        - createdAt
+        - updatedAt
+      properties:
+        id:
+          type: string
+          example: task_001
+        title:
+          type: string
+          example: Prepare sprint demo
+        description:
+          type: string
+          example: Finalize slides and supporting notes.
+        priority:
+          $ref: '#/components/schemas/TaskPriority'
+        dueDate:
+          type: string
+          format: date
+          example: '2026-07-15'
+        status:
+          $ref: '#/components/schemas/TaskStatus'
+        assigneeId:
+          type: string
+          nullable: true
+          example: usr_002
+        createdAt:
+          type: string
+          format: date-time
+          example: '2026-07-08T10:30:00Z'
+        updatedAt:
+          type: string
+          format: date-time
+          example: '2026-07-08T10:45:00Z'
+    TaskPriority:
+      type: string
+      enum:
+        - low
+        - medium
+        - high
+      example: high
+    TaskStatus:
+      type: string
+      enum:
+        - todo
+        - inProgress
+        - review
+        - done
+      example: todo
+    CreateTaskRequest:
+      type: object
+      required:
+        - title
+        - description
+        - priority
+        - dueDate
+        - status
+      properties:
+        title:
+          type: string
+          example: Prepare sprint demo
+        description:
+          type: string
+          example: Finalize slides and supporting notes.
+        priority:
+          $ref: '#/components/schemas/TaskPriority'
+        dueDate:
+          type: string
+          format: date
+          example: '2026-07-15'
+        status:
+          $ref: '#/components/schemas/TaskStatus'
+        assigneeId:
+          type: string
+          nullable: true
+          example: usr_002
+    UpdateTaskRequest:
+      type: object
+      properties:
+        title:
+          type: string
+          example: Prepare sprint demo
+        description:
+          type: string
+          example: Finalize slides and supporting notes.
+        priority:
+          $ref: '#/components/schemas/TaskPriority'
+        dueDate:
+          type: string
+          format: date
+          example: '2026-07-15'
+        status:
+          $ref: '#/components/schemas/TaskStatus'
+        assigneeId:
+          type: string
+          nullable: true
+          example: usr_002
+    UserListResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/User'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+    TaskListResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Task'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+    DashboardSummary:
+      type: object
+      properties:
+        totalTasks:
+          type: integer
+          example: 42
+        todoTasks:
+          type: integer
+          example: 10
+        inProgressTasks:
+          type: integer
+          example: 15
+        reviewTasks:
+          type: integer
+          example: 8
+        doneTasks:
+          type: integer
+          example: 9
+        overdueTasks:
+          type: integer
+          example: 4
+        assignedTasks:
+          type: integer
+          example: 18
