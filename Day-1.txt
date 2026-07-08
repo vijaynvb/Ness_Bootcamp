@@ -1,0 +1,50 @@
+
+1. EA 
+    program, process, application, ea 
+2. instructions -> ML, AL, HL 
+3. Syntax Sematics
+4. Compiler and interpreter [paralle processing, cpu utiliation [time slice]]
+5. C program compilation steps 
+    1. macro expansion, -> 
+    2. asm 
+    3. obj
+    4. linkers loaders
+    5. exe  
+6. Recruitment process 
+7. Dockers -> container -> process -> [cpu, ram, secondary storage, network]
+
+AI ML: 
+    1. AI -> Mimic of human brain as a process
+        1. perception
+        2. reasoning
+        3. learning 
+        4. problem solving
+        5. decision making
+    2. Alogrithms [learn execute] 
+        1. supervised
+        2. unsupervised [HMM -> training -> with labeled data ]
+        3. semi
+        4. self
+        5. RL
+        6. RLHF
+        7. DL
+            1. ANN -> neurons and synapses
+            2. Train -> algo + data
+    3. Transformers 
+        1. scaling -> 
+            process -> [cpu 4, ram 8gb, secondary storage 500gb hdd, network 100mbps] 100 parallel request 
+                1. Vertical scaling -> [cpu 8, ram 16gb, secondary storage 1tb hdd, network 1000mbps] -> 200 
+                2. horizontal scaling
+                    instance 1-> [cpu 8, ram 16gb, secondary storage 1tb hdd, network 1000mbps] -> 200
+                    instance 2-> [cpu 8, ram 16gb, secondary storage 1tb hdd, network 1000mbps] -> 200
+        2. Parallel proceessing 
+            -> POP, OOPs
+        3. attention -> 
+        4. conponents
+            1. embedings -> text -> vector 
+            2. encoder
+            3. decoder
+            4. softmax -> text
+
+
+https://poloclub.github.io/transformer-explainer/

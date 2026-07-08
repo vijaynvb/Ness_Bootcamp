@@ -1,0 +1,38 @@
+github copilot: 
+
+SDLC: 
+    1. SRS [sales, client marketing ]
+        1. B2B -> SOW BRD
+        2. B2C -> Proposal of product
+    2. HLD -> [solution architects, system designers]
+        1. Architecture 
+        2. fesability study:
+            1. price
+            2. technology
+            3. license
+        
+        outcome: 
+            1. ER Diagrams 
+            2. DFD 
+            3. Architectural diagrams 
+            4. OpenAPI Specification 
+    3. LLD: low level design [developers, unit test ]
+        1. code,
+        2. unit test code
+
+        out: 
+            1. support documents
+            2. service document 
+            3. code documentation 
+    4. Testing [Manual testers, automation testers, performance, load, benchmarking, qa, qc ]
+        1. bug list 
+        2. test suite
+    5. deployment 
+        1. infrastructure 
+        2. configured 
+    6. Observability
+        1. Infrastructure 
+        2. Application 
+    7. support
+        1. L1 - configurations
+        2. L2 - bug 
