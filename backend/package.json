@@ -16,7 +16,9 @@
     "express": "^4.21.0",
     "helmet": "^7.0.0",
     "reflect-metadata": "^0.2.2",
-    "uuid": "^9.0.0"
+    "swagger-ui-express": "^5.0.0",
+    "uuid": "^9.0.0",
+    "yaml": "^2.5.0"
   },
   "devDependencies": {
     "@types/cors": "^2.8.0",
