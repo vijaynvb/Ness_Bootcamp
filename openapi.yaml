@@ -17,6 +17,8 @@ tags:
     description: Administrative user management and profile operations.
   - name: Tasks
     description: Create, update, view, assign, complete, and delete tasks.
+  - name: Settings
+    description: Outlook integration settings for syncing calendar and task data.
   - name: Dashboard
     description: Summary view for task progress and workload.
 paths:
@@ -497,6 +499,215 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+  /settings:
+    get:
+      tags:
+        - Settings
+      summary: List Outlook integration settings
+      description: Returns a paginated list of Outlook integration settings for the current workspace.
+      parameters:
+        - $ref: '#/components/parameters/page'
+        - $ref: '#/components/parameters/pageSize'
+      responses:
+        '200':
+          description: Settings retrieved successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                        outlookEmailAddress:
+                          type: string
+                        syncEnabled:
+                          type: boolean
+                        calendarId:
+                          type: string
+                        pollingIntervalMinutes:
+                          type: integer
+                  pagination:
+                    type: object
+                    properties:
+                      page:
+                        type: integer
+                      pageSize:
+                        type: integer
+                      totalItems:
+                        type: integer
+                      totalPages:
+                        type: integer
+        '400':
+          description: Invalid pagination parameters.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    post:
+      tags:
+        - Settings
+      summary: Create Outlook integration settings
+      description: Stores a new Outlook integration payload for syncing calendar events and tasks.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - outlookEmailAddress
+                - syncEnabled
+              properties:
+                outlookEmailAddress:
+                  type: string
+                  format: email
+                syncEnabled:
+                  type: boolean
+                calendarId:
+                  type: string
+                pollingIntervalMinutes:
+                  type: integer
+                  minimum: 5
+                  maximum: 1440
+      responses:
+        '201':
+          description: Settings created successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  outlookEmailAddress:
+                    type: string
+                  syncEnabled:
+                    type: boolean
+                  calendarId:
+                    type: string
+                  pollingIntervalMinutes:
+                    type: integer
+        '400':
+          description: Invalid request payload.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /settings/{settingId}:
+    get:
+      tags:
+        - Settings
+      summary: Get Outlook integration settings by ID
+      description: Returns the Outlook integration configuration for a specific setting ID.
+      parameters:
+        - $ref: '#/components/parameters/settingId'
+      responses:
+        '200':
+          description: Settings retrieved successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  outlookEmailAddress:
+                    type: string
+                  syncEnabled:
+                    type: boolean
+                  calendarId:
+                    type: string
+                  pollingIntervalMinutes:
+                    type: integer
+        '404':
+          description: Settings not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    patch:
+      tags:
+        - Settings
+      summary: Update Outlook integration settings
+      description: Applies a partial update to an existing Outlook integration setting.
+      parameters:
+        - $ref: '#/components/parameters/settingId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                outlookEmailAddress:
+                  type: string
+                  format: email
+                syncEnabled:
+                  type: boolean
+                calendarId:
+                  type: string
+                pollingIntervalMinutes:
+                  type: integer
+                  minimum: 5
+                  maximum: 1440
+      responses:
+        '200':
+          description: Settings updated successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  outlookEmailAddress:
+                    type: string
+                  syncEnabled:
+                    type: boolean
+                  calendarId:
+                    type: string
+                  pollingIntervalMinutes:
+                    type: integer
+        '400':
+          description: Invalid request payload.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Settings not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      tags:
+        - Settings
+      summary: Delete Outlook integration settings
+      description: Removes a setting record by ID.
+      parameters:
+        - $ref: '#/components/parameters/settingId'
+      responses:
+        '200':
+          description: Settings deleted successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+        '404':
+          description: Settings not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
   /dashboard:
     get:
       tags:
@@ -552,6 +763,13 @@ components:
       in: path
       required: true
       description: Unique identifier of the task.
+      schema:
+        type: string
+    settingId:
+      name: settingId
+      in: path
+      required: true
+      description: Unique identifier of the Outlook integration setting.
       schema:
         type: string
   schemas:
